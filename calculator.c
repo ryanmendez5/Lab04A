@@ -45,8 +45,9 @@ int main(int argc, char **argv)
             break ;
 
         default:    
-            printf("\nINVALID operation\n" );
-            result = -9999;
+            printf("INVALID operation\n" );
+            return -1;
     } ;
     printf("%d %c %d = %d\n", num1, op, num2, result);
+    return 0;
 }
