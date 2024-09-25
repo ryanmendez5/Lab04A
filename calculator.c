@@ -15,43 +15,45 @@ File Name   : calculator.c
 
 int main(int argc, char **argv)
 {   
-    // for (int i = 0; i < argc; i++) {
-    //     printf("%d\n", argv[i]);
+    // // for (int i = 0; i < argc; i++) {
+    // //     printf("%d\n", argv[i]);
+    // // }
+    // if ( argc != 4 ) 
+    // {
+    //     printf("args: Number Operation Number\n");
+    //     return -1;
     // }
-    if ( argc != 4 ) 
-    {
-        printf("args: Number Operation Number\n");
-        return -1;
-    }
-    char op = argv[2][0];
-    int num1 = atoi(argv[1]);
-    int num2 = atoi(argv[3]);
-    int result;
+
+    int requestPipe = atoi(argv[1]);
+    int replyPipe = atoi(argv[2]);
+
+    char buffer[100];
+    int num1, num2, result;
+    char op;
+
+    // read the request from the pipe
+    read(requestPipe, buffer, sizeof(buffer));
+    sscanf(buffer, "%d %c %d", &num1, &op, &num2);
 
     switch ( op )
     {
         case '+':   
-            result = num1 + num2 ;
-            break ;
-                    
+            result = num1 + num2;
+            break ;                 
         case '-':   
-            result = num1 - num2 ;
+            result = num1 - num2;
             break ;
-
         case '*': 
-        case 'x':   
-        case 'X':   
-            result = num1 * num2 ;
-            break ;
-                    
+            result = num1 * num2;
+            break ;             
         case '/':   
-            result = num1 / num2 ;
+            result = num1 / num2;
             break ;
-
         default:    
             printf("INVALID operation\n" );
             return -1;
-    } ;
-    printf("%d %c %d = %d\n", num1, op, num2, result);
+    } 
+
+    dprintf(replyPipe, "%d %c %d = %d\n", num1, op, num2, result);
     return 0;
 }
