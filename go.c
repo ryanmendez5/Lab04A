@@ -37,11 +37,11 @@ pid_t Fork(void)
 int main(void)
 {    
     pid_t userProcess, calcProcess;
-	int fd[2];
+	int requestPipe[2], replyPipe[2];
 
     //printf("Go started creating thes pipes\n" );
 	/** create the pipe */
-	if ( pipe(fd) == -1 ) 
+	if ( pipe(requestPipe) == -1 || pipe(replyPipe) == -1) 
 	{
         fprintf(stderr,"Pipe failed");
         return 1;
@@ -49,16 +49,21 @@ int main(void)
 
     userProcess = Fork();
 	if ( userProcess == 0 )   /* Left-Child process */
-	{	/* close the unused end of the pipe */
-        
-        close(  fd[READ_END]   );
+	{	
+        /* close the unused end of the pipes */
+        close(requestPipe[READ_END]);
+        close(replyPipe[WRITE_END]);
+
         printf("This is User process (id = %d).\n", getpid());
         printf("\tUser: Please, enter: value1 operation value2\n");
-        /* overwrite the stdout of Left-Child to the write-end of the pipe */
-        dup2(   fd[WRITE_END]   ,    STDOUT_FD   ) ;
+        
+        /* pass the pipe desc to the users */
+        char requestWrite[10], replyRead[10];
+        sprintf(requestWrite, "%d", requestPipe[WRITE_END]);
+        sprintf(replyRead, "%d", replyPipe[READ_END]);
 
         // start the new executable for the Left-Child
-        if( execlp("./user", "tom", NULL) < 0)
+        if( execlp("./user", "user", requestWrite, replyRead, NULL) < 0)
         {
             perror("execlp Left-Chiled Failed");
             exit(-1) ;
@@ -72,19 +77,18 @@ int main(void)
         {
 
             /* close the unused end of the pipe */
-            close(   fd[WRITE_END]   );
+            close(requestPipe[WRITE_END]);
+            close(replyPipe[READ_END]);
+
             printf("This is Calculator process (id = %d).\n", getpid());
             /* Overwrite the stdin of Right-Child 
                to the read-end of the pipe */
-            char num1Buffer[18];
-            char num2Buffer[18];
-            char opBuffer[2];
-            //read(fd[READ_END], buffer, sizeof(buffer));
-            dup2(    fd[READ_END]   ,    STDIN_FD   ) ;
-            scanf("%s %s %s", num1Buffer, opBuffer, num2Buffer);
+            char requestRead[10], replyWrite[10];
+            sprintf(requestRead, "%d", requestPipe[READ_END]);
+            sprintf(replyWrite, "%d", replyPipe[WRITE_END]);
             
             // start the new executable for the Left-Child
-            if( execlp("./calculator", "calculator", num1Buffer, opBuffer, num2Buffer, NULL) < 0 )
+            if( execlp("./calculator", "calculator", requestRead, replyWrite, NULL) < 0 )
             {
                 perror("execlp Right-Chiled Failed");
                 exit(-1) ;
@@ -92,9 +96,11 @@ int main(void)
         }
         else /* Parent process */
         { 
-            // Parent:  Close both ends of the pipe
-			close(   fd[READ_END]    ) ;
-            close(   fd[WRITE_END]    ) ;
+            // Parent:  Close both ends of the pipes
+			close(requestPipe[READ_END]);
+            close(requestPipe[WRITE_END]);
+            close(replyPipe[READ_END]);
+            close(replyPipe[WRITE_END]);
 
             // Wait for left-child to end
             printf("Go is now waiting for User to terminate\n");
