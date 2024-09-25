@@ -9,6 +9,8 @@ File Name   : user.c
 -------------------------------------------------------------------------------*/
 
 #include <stdio.h> 
+#include <unistd.h>
+#include <stdlib.h>
 
 int main(int argc, char **argv)
 {   
@@ -23,12 +25,12 @@ int main(int argc, char **argv)
 
     // sends the values in to the request pipe
     dprintf(requestPipe, "%d %c %d\n", num1, op, num2);
+    printf("\tUser Sending the following: %d %c %d on FD %d\n", num1, op, num2, requestPipe);
 
     //read in result from calcualtor from reply pipe and put it in result
-    char result[100];
-    read(replyPipe, result, sizeof(result));
+    int result;
+    read(replyPipe, &result, sizeof(result));
 
-    printf("User recieved the following result: %s\n", result);
-
+    printf("User recieved the following result: %d from FD %d\n", result, replyPipe);
     return 0;
 }

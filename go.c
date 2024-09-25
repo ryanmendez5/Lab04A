@@ -39,13 +39,16 @@ int main(void)
     pid_t userProcess, calcProcess;
 	int requestPipe[2], replyPipe[2];
 
-    //printf("Go started creating thes pipes\n" );
 	/** create the pipe */
 	if ( pipe(requestPipe) == -1 || pipe(replyPipe) == -1) 
 	{
         fprintf(stderr,"Pipe failed");
         return 1;
 	}
+
+    printf("\nGo started creating thes pipes\n" );
+    printf("\tUser-to-Calculator Request pipe: read=%d write=%d\n", requestPipe[READ_END], requestPipe[WRITE_END]);
+    printf("\tCalculator-to-User Reply pipe: read=%d write=%d\n\n", replyPipe[READ_END], replyPipe[WRITE_END]);
 
     userProcess = Fork();
 	if ( userProcess == 0 )   /* Left-Child process */
@@ -110,7 +113,7 @@ int main(void)
             printf("Go is now waiting for Calculator to terminate\n");
 			waitpid(calcProcess, NULL, 0 ) ;
 
-            printf("The Go process has terminated\n" ) ;
+            printf("\nThe Go process has terminated\n" ) ;
         }
 	}
 	return 0;
