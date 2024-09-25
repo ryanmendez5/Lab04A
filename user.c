@@ -10,12 +10,25 @@ File Name   : user.c
 
 #include <stdio.h> 
 
-int main(void)
+int main(int argc, char **argv)
 {   
-    int num1;
-    int num2;
+    int requestPipe = atoi(argv[1]);
+    int replyPipe = atoi(argv[2]);
+
+    int num1, num2;
     char op;
+
+    // scans in the nums and op
     scanf("%d %c %d", &num1, &op, &num2);
-    printf("%d %c %d\n", num1, op, num2);
+
+    // sends the values in to the request pipe
+    dprintf(requestPipe, "%d %c %d\n", num1, op, num2);
+
+    //read in result from calcualtor from reply pipe and put it in result
+    char result[100];
+    read(replyPipe, result, sizeof(result));
+
+    printf("User recieved the following result: %s\n", result);
+
     return 0;
 }
