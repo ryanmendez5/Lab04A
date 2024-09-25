@@ -34,7 +34,8 @@ int main(int argc, char **argv)
         case '-':   
             result = num1 - num2 ;
             break ;
-                    
+
+        case '*': 
         case 'x':   
         case 'X':   
             result = num1 * num2 ;
