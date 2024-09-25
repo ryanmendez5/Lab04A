@@ -36,10 +36,10 @@ pid_t Fork(void)
 
 int main(void)
 {    
-    pid_t pidLeft, pidRight;
+    pid_t userProcess, calcProcess;
 	int fd[2];
 
-    //printf("Implementing the shell command: cat someFile.txt | more\n" );
+    //printf("Go started creating thes pipes\n" );
 	/** create the pipe */
 	if ( pipe(fd) == -1 ) 
 	{
@@ -47,11 +47,13 @@ int main(void)
         return 1;
 	}
 
-    pidLeft = Fork();
-	if ( pidLeft == 0 )   /* Left-Child process */
+    userProcess = Fork();
+	if ( userProcess == 0 )   /* Left-Child process */
 	{	/* close the unused end of the pipe */
+        
         close(  fd[READ_END]   );
-
+        printf("This is User process (id = %d).\n", getpid());
+        printf("\tUser: Please, enter: value1 operation value2\n");
         /* overwrite the stdout of Left-Child to the write-end of the pipe */
         dup2(   fd[WRITE_END]   ,    STDOUT_FD   ) ;
 
@@ -65,18 +67,24 @@ int main(void)
 	else /* Parent process */
 	{
         /* now fork the Right-Child process */
-        pidRight = Fork();
-        if ( pidRight == 0)   /* Right-Child process */
+        calcProcess = Fork();
+        if ( calcProcess == 0)   /* Right-Child process */
         {
+
             /* close the unused end of the pipe */
             close(   fd[WRITE_END]   );
-
+            printf("This is Calculator process (id = %d).\n", getpid());
             /* Overwrite the stdin of Right-Child 
                to the read-end of the pipe */
+            char num1Buffer[18];
+            char num2Buffer[18];
+            char opBuffer[2];
+            //read(fd[READ_END], buffer, sizeof(buffer));
             dup2(    fd[READ_END]   ,    STDIN_FD   ) ;
-
+            scanf("%s %s %s", num1Buffer, opBuffer, num2Buffer);
+            
             // start the new executable for the Left-Child
-            if( execlp("/bin/more", "Jerry" , NULL) < 0 )
+            if( execlp("./calculator", "calculator", num1Buffer, opBuffer, num2Buffer, NULL) < 0 )
             {
                 perror("execlp Right-Chiled Failed");
                 exit(-1) ;
@@ -89,12 +97,14 @@ int main(void)
             close(   fd[WRITE_END]    ) ;
 
             // Wait for left-child to end
-			waitpid( pidLeft, NULL, 0) ;
+            printf("Go is now waiting for User to terminate\n");
+			waitpid( userProcess, NULL, 0) ;
             
 			// wait for right-child to end
-			waitpid(pidRight, NULL, 0 ) ;
+            printf("Go is now waiting for Calculator to terminate\n");
+			waitpid(calcProcess, NULL, 0 ) ;
 
-            printf("At Your Command #\n" ) ;
+            printf("The Go process has terminated\n" ) ;
         }
 	}
 	return 0;

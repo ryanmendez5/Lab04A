@@ -14,7 +14,10 @@ File Name   : calculator.c
 #include <unistd.h>
 
 int main(int argc, char **argv)
-{    
+{   
+    // for (int i = 0; i < argc; i++) {
+    //     printf("%d\n", argv[i]);
+    // }
     if ( argc != 4 ) 
     {
         printf("args: Number Operation Number\n");

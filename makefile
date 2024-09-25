@@ -1,7 +1,7 @@
 all:  user.c calculator.c go.c 
 	gcc user.c 			-o user
-	gcc calculator.c 	-o calc
+	gcc calculator.c 	-o calculator
 	gcc go.c			-o go
 
 clean:
-	rm user calc go
+	rm user calculator go

@@ -8,7 +8,14 @@ Author      : Nischal Lawot    lawotnr@dukes.jmu.edu
 File Name   : user.c
 -------------------------------------------------------------------------------*/
 
-int main(void)
-{    
+#include <stdio.h> 
 
+int main(void)
+{   
+    int num1;
+    int num2;
+    char op;
+    scanf("%d %c %d", &num1, &op, &num2);
+    printf("%d %c %d\n", num1, op, num2);
+    return 0;
 }
