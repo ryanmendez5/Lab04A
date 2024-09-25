@@ -48,7 +48,7 @@ int main(void)
 
     printf("\nGo started creating thes pipes\n" );
     printf("\tUser-to-Calculator Request pipe: read=%d write=%d\n", requestPipe[READ_END], requestPipe[WRITE_END]);
-    printf("\tCalculator-to-User Reply pipe: read=%d write=%d\n\n", replyPipe[READ_END], replyPipe[WRITE_END]);
+    printf("\tCalculator-to-User Reply pipe: read=%d write=%d\n", replyPipe[READ_END], replyPipe[WRITE_END]);
 
     userProcess = Fork();
 	if ( userProcess == 0 )   /* Left-Child process */
@@ -106,11 +106,11 @@ int main(void)
             close(replyPipe[WRITE_END]);
 
             // Wait for left-child to end
-            printf("Go is now waiting for User to terminate\n");
+            printf("\nGo is now waiting for User to terminate\n");
 			waitpid( userProcess, NULL, 0) ;
             
 			// wait for right-child to end
-            printf("Go is now waiting for Calculator to terminate\n");
+            printf("\nGo is now waiting for Calculator to terminate\n");
 			waitpid(calcProcess, NULL, 0 ) ;
 
             printf("\nThe Go process has terminated\n" ) ;
